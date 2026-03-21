@@ -13,7 +13,7 @@ export function Navbar() {
 
         <div className="flex items-center gap-3">
           <Link
-            href="https://tollfighter.app"
+            href="https://tollfighter.com"
             target="_blank"
             rel="noopener noreferrer"
             className="text-sm text-slate-500 hover:text-slate-900 transition-colors hidden sm:block"

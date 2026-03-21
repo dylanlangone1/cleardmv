@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import type { DMVScanResult } from '@/types/dmv';
 import { IssueCard } from './IssueCard';
+import { MonitorSignup } from './MonitorSignup';
 import { CheckCircle2, RefreshCw, MessageSquare } from 'lucide-react';
 
 interface Props {
@@ -108,6 +109,9 @@ export function ScanResults({ result, onReset }: Props) {
           Talk to the AI — I'll walk you through every issue
         </button>
       )}
+
+      {/* Plate monitor signup */}
+      <MonitorSignup plate={result.plate} state={result.state} />
 
       {/* Reset */}
       <button

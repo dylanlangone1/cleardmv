@@ -25,13 +25,15 @@ export default function HomePage() {
   const [state,    setState]    = useState<DMVState>('NH');
   const [plate,    setPlate]    = useState('');
   const [vinLast8, setVin]      = useState('');
+  const [dob,      setDob]      = useState('');
   const [open,     setOpen]     = useState(false);
   const { isScanning, status, result, error, submitting, startScan, reset } = useDmvScan();
 
   const selectedState = STATES.find((s) => s.code === state)!;
   const isLoading     = submitting || isScanning;
-  // NH requires VIN last 8 for the registration lookup
+  // NH requires last 8 of VIN; ME requires date of birth
   const requiresVin   = state === 'NH';
+  const requiresDob   = state === 'ME';
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -40,14 +42,15 @@ export default function HomePage() {
       state,
       plate:    plate.trim().toUpperCase(),
       vinLast8: vinLast8.trim().toUpperCase() || undefined,
+      dob:      dob.trim() || undefined,
     });
   }
 
   function handleStateChange(code: DMVState) {
     setState(code);
     setOpen(false);
-    // Clear VIN when switching away from NH
     if (code !== 'NH') setVin('');
+    if (code !== 'ME') setDob('');
   }
 
   return (
@@ -144,6 +147,32 @@ export default function HomePage() {
                     <p className="text-xs text-slate-600 px-1">
                       NH requires your VIN for registration lookup — found on your dashboard or registration card.
                       {!vinLast8 && ' Skip this to get AI-guided help instead.'}
+                    </p>
+                  </div>
+                )}
+
+                {/* DOB field — ME only */}
+                {requiresDob && (
+                  <div className="space-y-1">
+                    <input
+                      type="text"
+                      value={dob}
+                      onChange={(e) => {
+                        // Allow digits and slashes, auto-insert slashes at MM/ and MM/DD/
+                        let v = e.target.value.replace(/[^\d/]/g, '');
+                        if (v.length === 2 && !v.includes('/')) v = v + '/';
+                        if (v.length === 5 && v.split('/').length === 2) v = v + '/';
+                        setDob(v.slice(0, 10));
+                      }}
+                      placeholder="Date of Birth (MM/DD/YYYY)"
+                      maxLength={10}
+                      autoComplete="bday"
+                      inputMode="numeric"
+                      className="w-full h-11 bg-white/5 border border-white/10 rounded-2xl px-4 text-white text-sm font-mono tracking-wider placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all"
+                    />
+                    <p className="text-xs text-slate-600 px-1">
+                      Maine BMV requires your date of birth to verify registration.
+                      {!dob && ' Skip this to get AI-guided help instead.'}
                     </p>
                   </div>
                 )}

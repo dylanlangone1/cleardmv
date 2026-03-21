@@ -14,6 +14,8 @@ const STATES: { code: DMVState; name: string; emoji: string }[] = [
   { code: 'MA', name: 'Massachusetts', emoji: '🦞' },
   { code: 'ME', name: 'Maine',         emoji: '🌊' },
   { code: 'RI', name: 'Rhode Island',  emoji: '🌉' },
+  { code: 'CT', name: 'Connecticut',   emoji: '⚓' },
+  { code: 'VT', name: 'Vermont',       emoji: '🍁' },
 ];
 
 const STEP_LABELS: Record<string, string> = {

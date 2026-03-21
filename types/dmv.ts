@@ -1,4 +1,4 @@
-export type DMVState = 'NH' | 'NY' | 'MA' | 'ME' | 'RI';
+export type DMVState = 'NH' | 'NY' | 'MA' | 'ME' | 'RI' | 'CT' | 'VT';
 export type IssueSeverity = 'critical' | 'warning' | 'info';
 export type IssueType =
   | 'registration_hold'

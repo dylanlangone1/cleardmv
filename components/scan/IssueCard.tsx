@@ -8,25 +8,25 @@ interface Props {
 
 const SEVERITY_CONFIG = {
   critical: {
-    bg:      'bg-red-500/10 border-red-500/20',
-    icon:    <AlertTriangle className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />,
-    badge:   'bg-red-500/20 text-red-300',
+    bg:      'bg-red-50 border-red-200',
+    icon:    <AlertTriangle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />,
+    badge:   'bg-red-100 text-red-700',
     label:   'Action Required',
-    cta:     'bg-red-500 hover:bg-red-400',
+    cta:     'bg-red-500 hover:bg-red-600',
   },
   warning: {
-    bg:      'bg-amber-500/10 border-amber-500/20',
-    icon:    <AlertTriangle className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />,
-    badge:   'bg-amber-500/20 text-amber-300',
+    bg:      'bg-amber-50 border-amber-200',
+    icon:    <AlertTriangle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />,
+    badge:   'bg-amber-100 text-amber-700',
     label:   'Heads Up',
-    cta:     'bg-amber-500 hover:bg-amber-400',
+    cta:     'bg-amber-500 hover:bg-amber-600',
   },
   info: {
-    bg:      'bg-blue-500/10 border-blue-500/20',
-    icon:    <Info className="w-5 h-5 text-blue-400 shrink-0 mt-0.5" />,
-    badge:   'bg-blue-500/20 text-blue-300',
+    bg:      'bg-blue-50 border-blue-200',
+    icon:    <Info className="w-5 h-5 text-blue-500 shrink-0 mt-0.5" />,
+    badge:   'bg-blue-100 text-blue-700',
     label:   'Info',
-    cta:     'bg-blue-500 hover:bg-blue-400',
+    cta:     'bg-blue-500 hover:bg-blue-600',
   },
 };
 
@@ -43,18 +43,17 @@ export function IssueCard({ issue, onGetHelp }: Props) {
               {cfg.label}
             </span>
             {issue.amount != null && (
-              <span className="text-xs font-bold text-white bg-slate-700 px-2 py-0.5 rounded-full">
+              <span className="text-xs font-bold text-gray-700 bg-gray-100 px-2 py-0.5 rounded-full">
                 ${issue.amount.toFixed(2)} fee
               </span>
             )}
           </div>
-          <h3 className="font-bold text-white text-sm">{issue.title}</h3>
-          <p className="text-xs text-slate-400 mt-1 leading-relaxed">{issue.description}</p>
+          <h3 className="font-bold text-slate-900 text-sm">{issue.title}</h3>
+          <p className="text-xs text-gray-600 mt-1 leading-relaxed">{issue.description}</p>
         </div>
       </div>
 
       <div className="flex gap-2 flex-wrap">
-        {/* Primary: AI help */}
         <button
           onClick={onGetHelp}
           className="flex items-center gap-1.5 text-xs font-semibold px-3 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl transition-colors"
@@ -63,7 +62,6 @@ export function IssueCard({ issue, onGetHelp }: Props) {
           Get AI Help
         </button>
 
-        {/* Secondary: direct link if fixable */}
         {issue.canAutoFix && issue.autoFixUrl && (
           <a
             href={issue.autoFixUrl}

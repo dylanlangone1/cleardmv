@@ -31,7 +31,6 @@ export default function HomePage() {
 
   const selectedState = STATES.find((s) => s.code === state)!;
   const isLoading     = submitting || isScanning;
-  // NH requires last 8 of VIN; ME requires date of birth
   const requiresVin   = state === 'NH';
   const requiresDob   = state === 'ME';
 
@@ -54,13 +53,13 @@ export default function HomePage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white flex flex-col">
+    <div className="min-h-screen bg-white text-slate-900 flex flex-col">
       <Navbar />
 
       {/* ── Hero ──────────────────────────────────────────────────────── */}
       <section className="relative flex-1 flex flex-col items-center justify-center px-4 py-16 sm:py-24">
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-blue-600/10 rounded-full blur-3xl" />
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-blue-50 rounded-full blur-3xl" />
         </div>
 
         <div className="relative w-full max-w-lg space-y-6">
@@ -71,44 +70,44 @@ export default function HomePage() {
             <>
               {/* Headline */}
               <div className="text-center space-y-3 mb-2">
-                <div className="inline-flex items-center gap-2 bg-blue-500/10 border border-blue-500/20 rounded-full px-3 py-1 mb-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse" />
-                  <span className="text-xs text-blue-300 font-medium">DMV issues found &amp; fixed instantly</span>
+                <div className="inline-flex items-center gap-2 bg-blue-50 border border-blue-200 rounded-full px-3 py-1 mb-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
+                  <span className="text-xs text-blue-600 font-medium">DMV issues found &amp; fixed instantly</span>
                 </div>
-                <h1 className="text-4xl sm:text-5xl font-bold tracking-tight">
+                <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-slate-900">
                   Enter your plate.<br />
-                  <span className="bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">
+                  <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
                     We handle the rest.
                   </span>
                 </h1>
-                <p className="text-slate-400 text-base">
+                <p className="text-gray-500 text-base">
                   Instant DMV record check — registration holds, suspensions, expired plates, fines. Free scan, AI-guided fixes.
                 </p>
               </div>
 
               {/* Scan form */}
-              <form onSubmit={handleSubmit} className="bg-white/5 border border-white/10 rounded-3xl p-5 space-y-3">
+              <form onSubmit={handleSubmit} className="bg-white border border-gray-200 rounded-3xl p-5 space-y-3 shadow-sm">
                 <div className="flex gap-2">
                   {/* State picker */}
                   <div className="relative">
                     <button
                       type="button"
                       onClick={() => setOpen((v) => !v)}
-                      className="flex items-center gap-1.5 h-12 px-3 bg-white/5 border border-white/10 rounded-2xl text-sm font-semibold text-white hover:border-white/20 transition-colors min-w-[80px]"
+                      className="flex items-center gap-1.5 h-12 px-3 bg-gray-50 border border-gray-200 rounded-2xl text-sm font-semibold text-slate-700 hover:border-gray-300 transition-colors min-w-[80px]"
                     >
                       <span>{selectedState.emoji}</span>
                       <span>{selectedState.code}</span>
-                      <ChevronDown className={`w-3.5 h-3.5 text-slate-400 transition-transform ${open ? 'rotate-180' : ''}`} />
+                      <ChevronDown className={`w-3.5 h-3.5 text-gray-400 transition-transform ${open ? 'rotate-180' : ''}`} />
                     </button>
 
                     {open && (
-                      <div className="absolute top-full mt-1 left-0 z-50 bg-slate-900 border border-white/10 rounded-2xl shadow-2xl overflow-hidden min-w-[180px]">
+                      <div className="absolute top-full mt-1 left-0 z-50 bg-white border border-gray-200 rounded-2xl shadow-lg overflow-hidden min-w-[180px]">
                         {STATES.map((s) => (
                           <button
                             key={s.code}
                             type="button"
                             onClick={() => handleStateChange(s.code)}
-                            className={`w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-left hover:bg-white/5 transition-colors ${state === s.code ? 'text-blue-400 font-semibold' : 'text-slate-300'}`}
+                            className={`w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-left hover:bg-gray-50 transition-colors ${state === s.code ? 'text-blue-600 font-semibold' : 'text-slate-700'}`}
                           >
                             <span>{s.emoji}</span>
                             <span>{s.name}</span>
@@ -128,7 +127,7 @@ export default function HomePage() {
                     autoComplete="off"
                     autoCorrect="off"
                     spellCheck={false}
-                    className="flex-1 h-12 bg-white/5 border border-white/10 rounded-2xl px-4 text-white text-base font-bold tracking-widest placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all uppercase"
+                    className="flex-1 h-12 bg-gray-50 border border-gray-200 rounded-2xl px-4 text-slate-900 text-base font-bold tracking-widest placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-400 transition-all uppercase"
                   />
                 </div>
 
@@ -142,9 +141,9 @@ export default function HomePage() {
                       placeholder="Last 8 of VIN (e.g. AB123456)"
                       maxLength={8}
                       autoComplete="off"
-                      className="w-full h-11 bg-white/5 border border-white/10 rounded-2xl px-4 text-white text-sm font-mono tracking-widest placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all uppercase"
+                      className="w-full h-11 bg-gray-50 border border-gray-200 rounded-2xl px-4 text-slate-900 text-sm font-mono tracking-widest placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-400 transition-all uppercase"
                     />
-                    <p className="text-xs text-slate-600 px-1">
+                    <p className="text-xs text-gray-400 px-1">
                       NH requires your VIN for registration lookup — found on your dashboard or registration card.
                       {!vinLast8 && ' Skip this to get AI-guided help instead.'}
                     </p>
@@ -158,7 +157,6 @@ export default function HomePage() {
                       type="text"
                       value={dob}
                       onChange={(e) => {
-                        // Allow digits and slashes, auto-insert slashes at MM/ and MM/DD/
                         let v = e.target.value.replace(/[^\d/]/g, '');
                         if (v.length === 2 && !v.includes('/')) v = v + '/';
                         if (v.length === 5 && v.split('/').length === 2) v = v + '/';
@@ -168,9 +166,9 @@ export default function HomePage() {
                       maxLength={10}
                       autoComplete="bday"
                       inputMode="numeric"
-                      className="w-full h-11 bg-white/5 border border-white/10 rounded-2xl px-4 text-white text-sm font-mono tracking-wider placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all"
+                      className="w-full h-11 bg-gray-50 border border-gray-200 rounded-2xl px-4 text-slate-900 text-sm font-mono tracking-wider placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-400 transition-all"
                     />
-                    <p className="text-xs text-slate-600 px-1">
+                    <p className="text-xs text-gray-400 px-1">
                       Maine BMV requires your date of birth to verify registration.
                       {!dob && ' Skip this to get AI-guided help instead.'}
                     </p>
@@ -207,9 +205,9 @@ export default function HomePage() {
                           <div className={`w-2 h-2 rounded-full transition-all ${
                             idx < current  ? 'bg-blue-500' :
                             idx === current ? 'bg-blue-400 animate-pulse' :
-                            'bg-white/10'
+                            'bg-gray-200'
                           }`} />
-                          {i < 2 && <div className={`w-8 h-px ${idx < current ? 'bg-blue-500/40' : 'bg-white/10'}`} />}
+                          {i < 2 && <div className={`w-8 h-px ${idx < current ? 'bg-blue-300' : 'bg-gray-200'}`} />}
                         </div>
                       );
                     })}
@@ -218,13 +216,13 @@ export default function HomePage() {
               </form>
 
               {error && (
-                <div className="bg-red-500/10 border border-red-500/20 rounded-2xl px-4 py-3 text-sm text-red-300 text-center">
+                <div className="bg-red-50 border border-red-200 rounded-2xl px-4 py-3 text-sm text-red-600 text-center">
                   {error}
                 </div>
               )}
 
               {/* Trust signals */}
-              <div className="flex items-center justify-center gap-6 text-xs text-slate-600">
+              <div className="flex items-center justify-center gap-6 text-xs text-gray-400">
                 <span className="flex items-center gap-1.5"><Shield className="w-3.5 h-3.5" /> No data stored</span>
                 <span className="flex items-center gap-1.5"><Zap className="w-3.5 h-3.5" /> ~30 sec scan</span>
                 <span className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5" /> Free</span>
@@ -236,10 +234,10 @@ export default function HomePage() {
 
       {/* ── What we find ──────────────────────────────────────────────── */}
       {!result && (
-        <section className="border-t border-white/5 py-16">
+        <section className="border-t border-gray-100 bg-gray-50 py-16">
           <div className="max-w-4xl mx-auto px-4 sm:px-6">
-            <h2 className="text-xl font-bold text-center mb-2">What we check</h2>
-            <p className="text-slate-500 text-sm text-center mb-10">
+            <h2 className="text-xl font-bold text-center text-slate-900 mb-2">What we check</h2>
+            <p className="text-gray-500 text-sm text-center mb-10">
               Every flag that could affect your driving or registration.
             </p>
             <div className="grid sm:grid-cols-3 gap-4">
@@ -251,10 +249,10 @@ export default function HomePage() {
                 { icon: '🔧', title: 'Auto-Fix Options',       desc: 'Issues we can resolve online are flagged with a direct fix link.' },
                 { icon: '🤖', title: 'AI-Guided Resolution',   desc: 'For anything complex, the AI walks you through it step by step.' },
               ].map((f) => (
-                <div key={f.title} className="bg-white/3 border border-white/8 rounded-2xl p-4 hover:border-white/15 transition-colors">
+                <div key={f.title} className="bg-white border border-gray-200 rounded-2xl p-4 hover:border-gray-300 transition-colors shadow-sm">
                   <div className="text-xl mb-2">{f.icon}</div>
-                  <div className="text-sm font-semibold text-white mb-1">{f.title}</div>
-                  <div className="text-xs text-slate-500 leading-relaxed">{f.desc}</div>
+                  <div className="text-sm font-semibold text-slate-900 mb-1">{f.title}</div>
+                  <div className="text-xs text-gray-500 leading-relaxed">{f.desc}</div>
                 </div>
               ))}
             </div>

@@ -13,7 +13,6 @@ export function ChatInput({ onSend, disabled, streaming }: Props) {
   const [value, setValue] = useState('');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  // Auto-resize textarea
   useEffect(() => {
     const el = textareaRef.current;
     if (!el) return;
@@ -37,7 +36,7 @@ export function ChatInput({ onSend, disabled, streaming }: Props) {
   }
 
   return (
-    <div className="border-t border-white/10 bg-slate-950 p-4">
+    <div className="border-t border-gray-200 bg-white p-4">
       <div className="flex gap-3 items-end max-w-4xl mx-auto">
         <textarea
           ref={textareaRef}
@@ -47,7 +46,7 @@ export function ChatInput({ onSend, disabled, streaming }: Props) {
           placeholder="Ask a follow-up question… (Enter to send, Shift+Enter for new line)"
           rows={1}
           disabled={disabled}
-          className="flex-1 bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 resize-none disabled:opacity-40 transition-all"
+          className="flex-1 bg-gray-50 border border-gray-200 rounded-2xl px-4 py-3 text-sm text-slate-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-400 resize-none disabled:opacity-40 transition-all"
         />
         <button
           onClick={submit}
@@ -61,7 +60,7 @@ export function ChatInput({ onSend, disabled, streaming }: Props) {
           )}
         </button>
       </div>
-      <p className="text-xs text-slate-700 text-center mt-2">
+      <p className="text-xs text-gray-400 text-center mt-2">
         ClearDMV provides guidance only — always verify fees and rules at the official DMV website.
       </p>
     </div>

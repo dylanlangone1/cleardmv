@@ -43,12 +43,10 @@ function ChatPageInner() {
   const bottomRef           = useRef<HTMLDivElement>(null);
   const [booted, setBooted] = useState(false);
 
-  // Redirect if unknown state
   useEffect(() => {
     if (stateCode && !stateData) router.replace('/');
   }, [stateCode, stateData, router]);
 
-  // Auto-send the initial prompt on first load
   useEffect(() => {
     if (booted || !stateData) return;
     setBooted(true);
@@ -74,7 +72,6 @@ function ChatPageInner() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stateData]);
 
-  // Scroll to bottom on new messages
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
@@ -82,29 +79,29 @@ function ChatPageInner() {
   if (!stateData) return null;
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white flex flex-col">
+    <div className="min-h-screen bg-gray-50 text-slate-900 flex flex-col">
       <Navbar />
 
       {/* Top bar */}
-      <div className="border-b border-white/10 bg-slate-900/50">
+      <div className="border-b border-gray-200 bg-white">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex items-center gap-4">
-          <Link href="/" className="text-slate-400 hover:text-white transition-colors">
+          <Link href="/" className="text-gray-400 hover:text-gray-700 transition-colors">
             <ArrowLeft className="w-4 h-4" />
           </Link>
           <div className="flex items-center gap-2">
             <span className="text-lg">{stateData.emoji}</span>
             <div>
-              <div className="font-semibold text-white text-sm">{stateData.dmvName} Assistant</div>
+              <div className="font-semibold text-slate-900 text-sm">{stateData.dmvName} Assistant</div>
               {issueData && (
-                <div className="text-xs text-slate-500">{issueData.emoji} {issueData.label}</div>
+                <div className="text-xs text-gray-500">{issueData.emoji} {issueData.label}</div>
               )}
             </div>
           </div>
 
           {handoffContext && (
-            <div className="ml-auto flex items-center gap-2 bg-amber-500/10 border border-amber-500/20 rounded-full px-3 py-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
-              <span className="text-xs text-amber-300 font-medium">From TollFighter</span>
+            <div className="ml-auto flex items-center gap-2 bg-amber-50 border border-amber-200 rounded-full px-3 py-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+              <span className="text-xs text-amber-700 font-medium">From TollFighter</span>
             </div>
           )}
         </div>
@@ -114,14 +111,14 @@ function ChatPageInner() {
       <div className="flex-1 flex max-w-6xl mx-auto w-full px-4 sm:px-6 py-6 gap-6">
         <StateSidebar stateData={stateData} />
 
-        <div className="flex-1 flex flex-col min-h-0 bg-white/3 border border-white/8 rounded-3xl overflow-hidden">
+        <div className="flex-1 flex flex-col min-h-0 bg-white border border-gray-200 rounded-3xl overflow-hidden shadow-sm">
           {/* Messages */}
           <div className="flex-1 overflow-y-auto p-6 space-y-5">
             {messages.length === 0 && (
               <div className="flex flex-col items-center justify-center h-full text-center gap-3 py-16">
                 <div className="text-4xl">{stateData.emoji}</div>
-                <Loader2 className="w-5 h-5 text-blue-400 animate-spin" />
-                <p className="text-slate-400 text-sm">
+                <Loader2 className="w-5 h-5 text-blue-500 animate-spin" />
+                <p className="text-gray-500 text-sm">
                   Connecting to your {stateData.dmvName} assistant…
                 </p>
               </div>
@@ -136,9 +133,9 @@ function ChatPageInner() {
             ))}
 
             {error && (
-              <div className="flex items-start gap-2 bg-red-500/10 border border-red-500/20 rounded-xl p-3">
-                <AlertCircle className="w-4 h-4 text-red-400 shrink-0 mt-0.5" />
-                <p className="text-xs text-red-300">{error}</p>
+              <div className="flex items-start gap-2 bg-red-50 border border-red-200 rounded-xl p-3">
+                <AlertCircle className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
+                <p className="text-xs text-red-600">{error}</p>
               </div>
             )}
 
@@ -155,8 +152,8 @@ function ChatPageInner() {
 // ── Loading fallback ──────────────────────────────────────────────────────────
 function ChatLoading() {
   return (
-    <div className="min-h-screen bg-slate-950 flex items-center justify-center">
-      <Loader2 className="w-8 h-8 text-blue-400 animate-spin" />
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
     </div>
   );
 }

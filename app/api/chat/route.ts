@@ -3,6 +3,7 @@ import { NextRequest } from 'next/server';
 import type { IssueType, HandoffContext, Message } from '@/types/chat';
 import { getStateData } from '@/data/states';
 import { buildSystemPrompt } from '@/lib/ai/systemPrompt';
+import { checkRateLimit } from '@/lib/rateLimit';
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
@@ -12,6 +13,15 @@ export const runtime = 'nodejs';
 export const maxDuration = 60;
 
 export async function POST(req: NextRequest) {
+  // Rate limit: 20 chat requests per hour per IP
+  const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown';
+  if (!checkRateLimit(`chat:${ip}`, 20, 60 * 60 * 1000)) {
+    return new Response(
+      JSON.stringify({ error: 'Chat limit reached (20/hour). Please try again later.' }),
+      { status: 429, headers: { 'Content-Type': 'application/json' } },
+    );
+  }
+
   try {
     const body = await req.json() as {
       state: string;

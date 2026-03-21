@@ -22,18 +22,32 @@ const STEP_LABELS: Record<string, string> = {
 };
 
 export default function HomePage() {
-  const [state, setState] = useState<DMVState>('NH');
-  const [plate, setPlate] = useState('');
-  const [open,  setOpen]  = useState(false);
+  const [state,    setState]    = useState<DMVState>('NH');
+  const [plate,    setPlate]    = useState('');
+  const [vinLast8, setVin]      = useState('');
+  const [open,     setOpen]     = useState(false);
   const { isScanning, status, result, error, submitting, startScan, reset } = useDmvScan();
 
   const selectedState = STATES.find((s) => s.code === state)!;
   const isLoading     = submitting || isScanning;
+  // NH requires VIN last 8 for the registration lookup
+  const requiresVin   = state === 'NH';
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!plate.trim()) return;
-    void startScan({ state, plate: plate.trim().toUpperCase() });
+    void startScan({
+      state,
+      plate:    plate.trim().toUpperCase(),
+      vinLast8: vinLast8.trim().toUpperCase() || undefined,
+    });
+  }
+
+  function handleStateChange(code: DMVState) {
+    setState(code);
+    setOpen(false);
+    // Clear VIN when switching away from NH
+    if (code !== 'NH') setVin('');
   }
 
   return (
@@ -90,7 +104,7 @@ export default function HomePage() {
                           <button
                             key={s.code}
                             type="button"
-                            onClick={() => { setState(s.code); setOpen(false); }}
+                            onClick={() => handleStateChange(s.code)}
                             className={`w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-left hover:bg-white/5 transition-colors ${state === s.code ? 'text-blue-400 font-semibold' : 'text-slate-300'}`}
                           >
                             <span>{s.emoji}</span>
@@ -114,6 +128,25 @@ export default function HomePage() {
                     className="flex-1 h-12 bg-white/5 border border-white/10 rounded-2xl px-4 text-white text-base font-bold tracking-widest placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all uppercase"
                   />
                 </div>
+
+                {/* VIN field — NH only */}
+                {requiresVin && (
+                  <div className="space-y-1">
+                    <input
+                      type="text"
+                      value={vinLast8}
+                      onChange={(e) => setVin(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 8))}
+                      placeholder="Last 8 of VIN (e.g. AB123456)"
+                      maxLength={8}
+                      autoComplete="off"
+                      className="w-full h-11 bg-white/5 border border-white/10 rounded-2xl px-4 text-white text-sm font-mono tracking-widest placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all uppercase"
+                    />
+                    <p className="text-xs text-slate-600 px-1">
+                      NH requires your VIN for registration lookup — found on your dashboard or registration card.
+                      {!vinLast8 && ' Skip this to get AI-guided help instead.'}
+                    </p>
+                  </div>
+                )}
 
                 <button
                   type="submit"

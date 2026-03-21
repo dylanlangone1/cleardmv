@@ -1,46 +1,39 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
-import { StateSelector } from '@/components/landing/StateSelector';
-import { IssueChips } from '@/components/landing/IssueChips';
-import type { IssueType } from '@/types/chat';
-import { getStateData } from '@/data/states';
-import { ArrowRight, Loader2, MessageSquare, ClipboardList, Shield } from 'lucide-react';
+import { ScanResults } from '@/components/scan/ScanResults';
+import { useDmvScan } from '@/hooks/useDmvScan';
+import type { DMVState } from '@/types/dmv';
+import { Search, Loader2, ChevronDown, Shield, Zap, CheckCircle2 } from 'lucide-react';
+
+const STATES: { code: DMVState; name: string; emoji: string }[] = [
+  { code: 'NH', name: 'New Hampshire', emoji: '🌲' },
+  { code: 'NY', name: 'New York',      emoji: '🗽' },
+  { code: 'MA', name: 'Massachusetts', emoji: '🦞' },
+  { code: 'ME', name: 'Maine',         emoji: '🌊' },
+  { code: 'RI', name: 'Rhode Island',  emoji: '🌉' },
+];
+
+const STEP_LABELS: Record<string, string> = {
+  pending: 'Connecting to portal…',
+  running: 'Scanning your record…',
+};
 
 export default function HomePage() {
-  const router = useRouter();
-  const [selectedState, setSelectedState] = useState<string | null>(null);
-  const [selectedIssue, setSelectedIssue] = useState<IssueType | null>(null);
-  const [prompt, setPrompt]               = useState('');
-  const [loading, setLoading]             = useState(false);
+  const [state, setState] = useState<DMVState>('NH');
+  const [plate, setPlate] = useState('');
+  const [open,  setOpen]  = useState(false);
+  const { isScanning, status, result, error, submitting, startScan, reset } = useDmvScan();
 
-  const stateData = selectedState ? getStateData(selectedState) : null;
-
-  function handleIssueSelect(id: IssueType) {
-    const next = id === selectedIssue ? null : id;
-    setSelectedIssue(next);
-    const starterMap: Record<IssueType, string> = {
-      toll_hold:    "I have a registration hold due to unpaid toll violations.",
-      registration: "I need help with my vehicle registration.",
-      license:      "My driver's license has been suspended.",
-      title:        "I need help with a vehicle title transfer.",
-      appointment:  "I need to schedule a DMV appointment.",
-      general:      "",
-    };
-    if (next && starterMap[next]) setPrompt(starterMap[next]);
-  }
+  const selectedState = STATES.find((s) => s.code === state)!;
+  const isLoading     = submitting || isScanning;
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!selectedState || (!prompt.trim() && !selectedIssue)) return;
-    setLoading(true);
-    const params = new URLSearchParams();
-    if (selectedIssue) params.set('issue', selectedIssue);
-    if (prompt.trim()) params.set('q', prompt.trim());
-    router.push(`/${selectedState}/chat?${params.toString()}`);
+    if (!plate.trim()) return;
+    void startScan({ state, plate: plate.trim().toUpperCase() });
   }
 
   return (
@@ -48,152 +41,164 @@ export default function HomePage() {
       <Navbar />
 
       {/* ── Hero ──────────────────────────────────────────────────────── */}
-      <section className="relative flex-1">
+      <section className="relative flex-1 flex flex-col items-center justify-center px-4 py-16 sm:py-24">
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute -top-40 -left-40 w-96 h-96 bg-blue-600/20 rounded-full blur-3xl" />
-          <div className="absolute top-20 right-0 w-72 h-72 bg-indigo-600/15 rounded-full blur-3xl" />
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-blue-600/10 rounded-full blur-3xl" />
         </div>
 
-        <div className="relative max-w-3xl mx-auto px-4 sm:px-6 pt-16 pb-24">
+        <div className="relative w-full max-w-lg space-y-6">
 
-          {/* Badge */}
-          <div className="inline-flex items-center gap-2 bg-blue-500/10 border border-blue-500/20 rounded-full px-3 py-1 mb-6">
-            <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse" />
-            <span className="text-xs text-blue-300 font-medium">AI-Powered DMV Help</span>
-          </div>
-
-          {/* Headline */}
-          <h1 className="text-4xl sm:text-5xl font-bold leading-tight mb-4 tracking-tight">
-            The DMV doesn&apos;t have<br />
-            to be a{' '}
-            <span className="bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">
-              nightmare.
-            </span>
-          </h1>
-          <p className="text-lg text-slate-400 mb-10 max-w-xl">
-            Registration holds, toll violations, license reinstatements, title transfers —
-            describe your situation and get step-by-step guidance, exact forms, and direct links.
-          </p>
-
-          {/* Main form card */}
-          <form onSubmit={handleSubmit} className="bg-white/5 border border-white/10 rounded-3xl p-6 sm:p-8 space-y-6 backdrop-blur-sm">
-
-            <StateSelector selected={selectedState} onSelect={setSelectedState} />
-
-            <div className={`space-y-4 transition-all duration-300 ${selectedState ? 'opacity-100' : 'opacity-30 pointer-events-none'}`}>
-              <div className="space-y-2">
-                <p className="text-sm font-semibold text-slate-400 uppercase tracking-widest">
-                  Step 2 — Describe your situation
+          {result ? (
+            <ScanResults result={result} onReset={reset} />
+          ) : (
+            <>
+              {/* Headline */}
+              <div className="text-center space-y-3 mb-2">
+                <div className="inline-flex items-center gap-2 bg-blue-500/10 border border-blue-500/20 rounded-full px-3 py-1 mb-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse" />
+                  <span className="text-xs text-blue-300 font-medium">DMV issues found &amp; fixed instantly</span>
+                </div>
+                <h1 className="text-4xl sm:text-5xl font-bold tracking-tight">
+                  Enter your plate.<br />
+                  <span className="bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">
+                    We handle the rest.
+                  </span>
+                </h1>
+                <p className="text-slate-400 text-base">
+                  Instant DMV record check — registration holds, suspensions, expired plates, fines. Free scan, AI-guided fixes.
                 </p>
-                <textarea
-                  value={prompt}
-                  onChange={(e) => setPrompt(e.target.value)}
-                  placeholder={
-                    stateData
-                      ? `What's your ${stateData.dmvName} issue? Describe it in plain English…`
-                      : "What's your DMV issue? Describe it in plain English…"
-                  }
-                  rows={3}
-                  className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 resize-none transition-all"
-                />
               </div>
 
-              <IssueChips selected={selectedIssue} onSelect={handleIssueSelect} />
+              {/* Scan form */}
+              <form onSubmit={handleSubmit} className="bg-white/5 border border-white/10 rounded-3xl p-5 space-y-3">
+                <div className="flex gap-2">
+                  {/* State picker */}
+                  <div className="relative">
+                    <button
+                      type="button"
+                      onClick={() => setOpen((v) => !v)}
+                      className="flex items-center gap-1.5 h-12 px-3 bg-white/5 border border-white/10 rounded-2xl text-sm font-semibold text-white hover:border-white/20 transition-colors min-w-[80px]"
+                    >
+                      <span>{selectedState.emoji}</span>
+                      <span>{selectedState.code}</span>
+                      <ChevronDown className={`w-3.5 h-3.5 text-slate-400 transition-transform ${open ? 'rotate-180' : ''}`} />
+                    </button>
 
-              <button
-                type="submit"
-                disabled={loading || !selectedState || (!prompt.trim() && !selectedIssue)}
-                className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 disabled:opacity-40 disabled:cursor-not-allowed text-white font-semibold rounded-2xl px-6 py-3.5 transition-all text-sm"
-              >
-                {loading ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    Starting…
-                  </>
-                ) : (
-                  <>
-                    Get Help Now
-                    <ArrowRight className="w-4 h-4" />
-                  </>
+                    {open && (
+                      <div className="absolute top-full mt-1 left-0 z-50 bg-slate-900 border border-white/10 rounded-2xl shadow-2xl overflow-hidden min-w-[180px]">
+                        {STATES.map((s) => (
+                          <button
+                            key={s.code}
+                            type="button"
+                            onClick={() => { setState(s.code); setOpen(false); }}
+                            className={`w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-left hover:bg-white/5 transition-colors ${state === s.code ? 'text-blue-400 font-semibold' : 'text-slate-300'}`}
+                          >
+                            <span>{s.emoji}</span>
+                            <span>{s.name}</span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Plate input */}
+                  <input
+                    type="text"
+                    value={plate}
+                    onChange={(e) => setPlate(e.target.value.toUpperCase())}
+                    placeholder="PLATE123"
+                    maxLength={8}
+                    autoComplete="off"
+                    autoCorrect="off"
+                    spellCheck={false}
+                    className="flex-1 h-12 bg-white/5 border border-white/10 rounded-2xl px-4 text-white text-base font-bold tracking-widest placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all uppercase"
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={isLoading || !plate.trim()}
+                  className="w-full h-12 flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold rounded-2xl transition-all text-sm"
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      {STEP_LABELS[status ?? 'pending'] ?? 'Scanning…'}
+                    </>
+                  ) : (
+                    <>
+                      <Search className="w-4 h-4" />
+                      Scan Plate — Free
+                    </>
+                  )}
+                </button>
+
+                {/* Progress dots while scanning */}
+                {isLoading && (
+                  <div className="flex items-center justify-center gap-2 pt-1">
+                    {['pending', 'running', 'completed'].map((step, i) => {
+                      const order   = ['pending', 'running', 'completed'];
+                      const current = order.indexOf(status ?? 'pending');
+                      const idx     = order.indexOf(step);
+                      return (
+                        <div key={step} className="flex items-center gap-2">
+                          <div className={`w-2 h-2 rounded-full transition-all ${
+                            idx < current  ? 'bg-blue-500' :
+                            idx === current ? 'bg-blue-400 animate-pulse' :
+                            'bg-white/10'
+                          }`} />
+                          {i < 2 && <div className={`w-8 h-px ${idx < current ? 'bg-blue-500/40' : 'bg-white/10'}`} />}
+                        </div>
+                      );
+                    })}
+                  </div>
                 )}
-              </button>
+              </form>
+
+              {error && (
+                <div className="bg-red-500/10 border border-red-500/20 rounded-2xl px-4 py-3 text-sm text-red-300 text-center">
+                  {error}
+                </div>
+              )}
+
+              {/* Trust signals */}
+              <div className="flex items-center justify-center gap-6 text-xs text-slate-600">
+                <span className="flex items-center gap-1.5"><Shield className="w-3.5 h-3.5" /> No data stored</span>
+                <span className="flex items-center gap-1.5"><Zap className="w-3.5 h-3.5" /> ~30 sec scan</span>
+                <span className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5" /> Free</span>
+              </div>
+            </>
+          )}
+        </div>
+      </section>
+
+      {/* ── What we find ──────────────────────────────────────────────── */}
+      {!result && (
+        <section className="border-t border-white/5 py-16">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6">
+            <h2 className="text-xl font-bold text-center mb-2">What we check</h2>
+            <p className="text-slate-500 text-sm text-center mb-10">
+              Every flag that could affect your driving or registration.
+            </p>
+            <div className="grid sm:grid-cols-3 gap-4">
+              {[
+                { icon: '🚧', title: 'Registration Holds',     desc: 'Unpaid tolls, fines, or flags stopping your renewal.' },
+                { icon: '📋', title: 'Registration Status',    desc: 'Active, expired, or suspended — with exact expiry date.' },
+                { icon: '🪪', title: 'License Flags',          desc: 'Suspensions, revocations, or expiration warnings.' },
+                { icon: '💸', title: 'Outstanding Fines',      desc: 'Unpaid fees attached to your plate or record.' },
+                { icon: '🔧', title: 'Auto-Fix Options',       desc: 'Issues we can resolve online are flagged with a direct fix link.' },
+                { icon: '🤖', title: 'AI-Guided Resolution',   desc: 'For anything complex, the AI walks you through it step by step.' },
+              ].map((f) => (
+                <div key={f.title} className="bg-white/3 border border-white/8 rounded-2xl p-4 hover:border-white/15 transition-colors">
+                  <div className="text-xl mb-2">{f.icon}</div>
+                  <div className="text-sm font-semibold text-white mb-1">{f.title}</div>
+                  <div className="text-xs text-slate-500 leading-relaxed">{f.desc}</div>
+                </div>
+              ))}
             </div>
-          </form>
-
-          <p className="text-center text-xs text-slate-600 mt-4">
-            Coming from TollFighter?{' '}
-            <a href="/handoff" className="text-blue-500 hover:underline">Resolve your DMV hold →</a>
-          </p>
-        </div>
-      </section>
-
-      {/* ── How it works ──────────────────────────────────────────────── */}
-      <section className="border-t border-white/5 py-20">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6">
-          <h2 className="text-2xl font-bold text-center mb-12">How it works</h2>
-          <div className="grid sm:grid-cols-3 gap-8">
-            {[
-              { step: '1', icon: '📍', title: 'Pick your state', desc: "Select your state DMV or RMV — we have specific, accurate data for each one." },
-              { step: '2', icon: '💬', title: 'Describe your issue', desc: "Tell us what's going on in plain English. No forms to fill out, no ticket numbers needed to start." },
-              { step: '3', icon: '✅', title: 'Get a clear path forward', desc: "AI walks you through exact steps, forms, fees, and direct links — no fluff." },
-            ].map((item) => (
-              <div key={item.step} className="flex flex-col items-center text-center gap-3">
-                <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-2xl">
-                  {item.icon}
-                </div>
-                <div>
-                  <div className="text-xs text-blue-400 font-bold uppercase tracking-widest mb-1">Step {item.step}</div>
-                  <h3 className="font-bold text-white mb-1">{item.title}</h3>
-                  <p className="text-sm text-slate-400">{item.desc}</p>
-                </div>
-              </div>
-            ))}
           </div>
-        </div>
-      </section>
-
-      {/* ── Feature grid ──────────────────────────────────────────────── */}
-      <section className="border-t border-white/5 py-20">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6">
-          <h2 className="text-2xl font-bold text-center mb-3">What we handle</h2>
-          <p className="text-slate-400 text-center text-sm mb-12">Everything DMV — not just tolls.</p>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {[
-              { icon: '🚧', title: 'Toll Violations & Holds', desc: 'Clear registration holds from unpaid tolls — step-by-step with exact fees.' },
-              { icon: '📋', title: 'Registration Help', desc: 'Renew, reinstate, or transfer your registration without the confusion.' },
-              { icon: '🪪', title: 'License Reinstatement', desc: "Understand exactly what's needed to get your license back." },
-              { icon: '🚗', title: 'Title Transfers', desc: 'Buying or selling a car? We\'ll walk you through the paperwork.' },
-              { icon: '📅', title: 'Appointments & Forms', desc: 'Direct links to book appointments and download the right forms.' },
-              { icon: '🤖', title: 'AI That Knows DMV Rules', desc: 'State-specific knowledge, not generic advice. We know the difference between NH DMV and MA RMV.' },
-            ].map((f) => (
-              <div key={f.title} className="bg-white/3 border border-white/8 rounded-2xl p-5 hover:border-white/15 transition-colors">
-                <div className="text-2xl mb-3">{f.icon}</div>
-                <h3 className="font-semibold text-white text-sm mb-1.5">{f.title}</h3>
-                <p className="text-xs text-slate-500 leading-relaxed">{f.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── Trust bar ─────────────────────────────────────────────────── */}
-      <section className="border-t border-white/5 py-12 bg-slate-900/50">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6">
-          <div className="grid sm:grid-cols-3 gap-6 text-center">
-            {[
-              { icon: <Shield className="w-5 h-5" />, label: 'Private & Secure', sub: 'We never store personal data' },
-              { icon: <MessageSquare className="w-5 h-5" />, label: 'Plain English', sub: 'No government jargon' },
-              { icon: <ClipboardList className="w-5 h-5" />, label: 'State-Specific', sub: 'Accurate for your state' },
-            ].map((t) => (
-              <div key={t.label} className="flex flex-col items-center gap-2">
-                <div className="text-blue-400">{t.icon}</div>
-                <div className="font-semibold text-sm text-white">{t.label}</div>
-                <div className="text-xs text-slate-500">{t.sub}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       <Footer />
     </div>

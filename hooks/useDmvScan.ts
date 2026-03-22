@@ -3,8 +3,9 @@
 import { useState, useCallback, useRef } from 'react';
 import type { DMVScanResult, ScanJobStatus } from '@/types/dmv';
 
-const API_URL       = process.env.NEXT_PUBLIC_TOLLFIGHTER_API_URL ?? 'https://toll-fighter-production.up.railway.app';
-const POLL_INTERVAL = 2_500;
+const API_URL        = process.env.NEXT_PUBLIC_TOLLFIGHTER_API_URL ?? 'https://toll-fighter-production.up.railway.app';
+const POLL_INTERVAL  = 2_500;
+const POLL_TIMEOUT   = 5 * 60 * 1_000; // 5 minutes — auto-fail if API never responds
 
 interface UseDmvScanState {
   jobId:        string | null;
@@ -24,12 +25,17 @@ export function useDmvScan() {
     error:        null,
     submitting:   false,
   });
-  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const pollRef        = useRef<ReturnType<typeof setInterval> | null>(null);
+  const pollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   function stopPolling() {
     if (pollRef.current) {
       clearInterval(pollRef.current);
       pollRef.current = null;
+    }
+    if (pollTimeoutRef.current) {
+      clearTimeout(pollTimeoutRef.current);
+      pollTimeoutRef.current = null;
     }
   }
 
@@ -81,6 +87,16 @@ export function useDmvScan() {
 
       void poll();
       pollRef.current = setInterval(poll, POLL_INTERVAL);
+
+      // Safety net — if the job never resolves, stop polling and show an error
+      pollTimeoutRef.current = setTimeout(() => {
+        stopPolling();
+        setState((s) => ({
+          ...s,
+          status: 'failed',
+          error: 'Scan is taking too long. Please try again.',
+        }));
+      }, POLL_TIMEOUT);
 
     } catch (err) {
       setState((s) => ({

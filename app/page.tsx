@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { ScanResults } from '@/components/scan/ScanResults';
@@ -19,22 +20,41 @@ const STATES: { code: DMVState; name: string; emoji: string }[] = [
   { code: 'VT', name: 'Vermont',       emoji: '🍁' },
 ];
 
+const VALID_STATES = new Set(STATES.map((s) => s.code));
+
 const STEP_LABELS: Record<string, string> = {
   pending: 'Connecting to portal…',
   running: 'Scanning your record…',
 };
 
-export default function HomePage() {
-  const [state,    setState]    = useState<DMVState>('NH');
-  const [plate,    setPlate]    = useState('');
+// ── Inner component (reads search params) ─────────────────────────────────────
+function HomeContent() {
+  const searchParams = useSearchParams();
+
+  // Read URL params — TollFighter links here with ?plate=ABC&state=NH
+  const urlPlate = (searchParams.get('plate') ?? '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 8);
+  const urlState = (searchParams.get('state') ?? '').toUpperCase().slice(0, 2) as DMVState;
+  const validUrlState = VALID_STATES.has(urlState) ? urlState : null;
+
+  const [state,    setState]    = useState<DMVState>(validUrlState ?? 'NH');
+  const [plate,    setPlate]    = useState(urlPlate);
   const [vinLast8, setVin]      = useState('');
   const [open,     setOpen]     = useState(false);
   const { isScanning, status, result, error, submitting, startScan, reset } = useDmvScan();
 
   const selectedState = STATES.find((s) => s.code === state)!;
   const isLoading     = submitting || isScanning;
-  // NH requires last 8 of VIN for its registration portal
   const requiresVin   = state === 'NH';
+
+  // Auto-start scan when both plate and state arrive via URL params
+  useEffect(() => {
+    if (urlPlate && validUrlState && validUrlState !== 'NH') {
+      // Non-NH states don't need VIN — fire immediately
+      void startScan({ state: validUrlState, plate: urlPlate });
+    }
+    // NH needs VIN — just pre-fill, don't auto-start
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // run once on mount
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -240,5 +260,18 @@ export default function HomePage() {
 
       <Footer />
     </div>
+  );
+}
+
+// ── Page export — Suspense required for useSearchParams ───────────────────────
+export default function HomePage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <Loader2 className="w-6 h-6 animate-spin text-blue-500" />
+      </div>
+    }>
+      <HomeContent />
+    </Suspense>
   );
 }

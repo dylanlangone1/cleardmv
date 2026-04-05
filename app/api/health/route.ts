@@ -19,7 +19,7 @@ export async function GET() {
   try {
     const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
     await anthropic.messages.create({
-      model: process.env.ANTHROPIC_CHAT_MODEL ?? 'claude-haiku-4-5',
+      model: 'claude-haiku-4-5',
       max_tokens: 5,
       messages: [{ role: 'user', content: 'hi' }],
     });

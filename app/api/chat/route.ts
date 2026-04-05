@@ -62,8 +62,9 @@ export async function POST(req: NextRequest) {
     }));
 
     // Stream response
+    const CHAT_MODEL = 'claude-haiku-4-5'; // haiku-4-5 is cheapest & sufficient for FAQ
     const stream = await anthropic.messages.create({
-      model: process.env.ANTHROPIC_CHAT_MODEL ?? 'claude-haiku-4-5',
+      model: CHAT_MODEL,
       max_tokens: 1024,
       system: systemPrompt,
       messages: anthropicMessages,

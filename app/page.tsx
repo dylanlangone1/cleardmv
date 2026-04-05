@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { ScanResults } from '@/components/scan/ScanResults';
+import { ReinstatementCalculator } from '@/components/ReinstatementCalculator';
 import { useDmvScan } from '@/hooks/useDmvScan';
 import type { DMVState } from '@/types/dmv';
 import { Search, Loader2, ChevronDown, Shield, Zap, CheckCircle2 } from 'lucide-react';
@@ -12,7 +13,7 @@ const STATES: { code: DMVState; name: string; emoji: string }[] = [
   { code: 'NH', name: 'New Hampshire', emoji: '🌲' },
   { code: 'NY', name: 'New York',      emoji: '🗽' },
   { code: 'MA', name: 'Massachusetts', emoji: '🦞' },
-  { code: 'ME', name: 'Maine',         emoji: '🌊' },
+  { code: 'ME', name: 'Maine',         emoji: '🌲' },
   { code: 'RI', name: 'Rhode Island',  emoji: '🌉' },
   { code: 'CT', name: 'Connecticut',   emoji: '⚓' },
   { code: 'VT', name: 'Vermont',       emoji: '🍁' },
@@ -64,7 +65,10 @@ export default function HomePage() {
         <div className="relative w-full max-w-lg space-y-6">
 
           {result ? (
-            <ScanResults result={result} onReset={reset} />
+            <>
+              <ScanResults result={result} onReset={reset} />
+              <ReinstatementCalculator defaultState={result.state} />
+            </>
           ) : (
             <>
               {/* Headline */}

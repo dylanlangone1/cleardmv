@@ -21,8 +21,13 @@ export const ME_STATE_DATA: StateData = {
   },
   forms: {
     registration: {
-      name: 'BMV Form',
-      label: 'Vehicle Registration Application',
+      name: 'MVT-2',
+      label: 'Application for Registration of Motor Vehicle',
+      url: 'https://www.maine.gov/sos/bmv/forms',
+    },
+    titleTransfer: {
+      name: 'MVT-2',
+      label: 'Application for Title and Registration',
       url: 'https://www.maine.gov/sos/bmv/forms',
     },
   },

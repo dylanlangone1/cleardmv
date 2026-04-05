@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import type { DMVScanResult } from '@/types/dmv';
 import { IssueCard } from './IssueCard';
 import { MonitorSignup } from './MonitorSignup';
-import { CheckCircle2, RefreshCw, MessageSquare } from 'lucide-react';
+import { CheckCircle2, RefreshCw, MessageSquare, ExternalLink } from 'lucide-react';
 
 interface Props {
   result: DMVScanResult;
@@ -99,6 +99,24 @@ export function ScanResults({ result, onReset }: Props) {
         />
       ))}
 
+      {/* TollFighter reverse handoff — show when toll-related issues detected */}
+      {result.issues.some(i =>
+        i.title.toLowerCase().includes('toll') ||
+        i.title.toLowerCase().includes('outstanding fine') ||
+        i.description?.toLowerCase().includes('toll') ||
+        i.description?.toLowerCase().includes('e-zpass')
+      ) && (
+        <a
+          href={`https://tollfighter.com/assess?plate=${encodeURIComponent(result.plate)}&state=${result.state.toLowerCase()}&ref=cleardmv`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="w-full flex items-center justify-center gap-2 bg-orange-50 hover:bg-orange-100 border border-orange-300 text-orange-700 font-semibold rounded-2xl px-4 py-3 transition-colors text-sm"
+        >
+          <ExternalLink className="w-4 h-4" />
+          Dispute These Tolls at TollFighter — AI writes & files your letter
+        </a>
+      )}
+
       {/* AI chat CTA */}
       {!allClear && (
         <button
@@ -112,6 +130,16 @@ export function ScanResults({ result, onReset }: Props) {
 
       {/* Plate monitor signup */}
       <MonitorSignup plate={result.plate} state={result.state} />
+
+      {/* Check if cleared — for hold/suspended users who paid */}
+      {(result.registrationStatus === 'hold' || result.registrationStatus === 'suspended') && (
+        <button
+          onClick={onReset}
+          className="w-full flex items-center justify-center gap-2 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-700 font-semibold rounded-2xl px-4 py-3 transition-colors text-sm"
+        >
+          I paid my tolls — check if cleared
+        </button>
+      )}
 
       {/* Reset */}
       <button

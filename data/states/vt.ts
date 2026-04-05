@@ -9,6 +9,7 @@ export const VT_STATE_DATA: StateData = {
     mainSite: 'https://dmv.vermont.gov',
     appointmentBooking: 'https://dmv.vermont.gov/offices',
     registrationRenewal: 'https://dmv.vermont.gov/registrations',
+    tollHoldInfo: 'https://dmv.vermont.gov/licenses/suspension-reinstatement',
     feeSchedule: 'https://dmv.vermont.gov/registrations/fees',
     licenseReinstatement: 'https://dmv.vermont.gov/licenses/suspension-reinstatement',
   },
@@ -44,5 +45,5 @@ export const VT_STATE_DATA: StateData = {
     duplicateTitle: '$33',
     licenseReinstatement: '$71 reinstatement fee',
   },
-  notes: 'Vermont is rural with limited DMV offices. Appointments are strongly recommended. Mail-in and online options are available for many transactions.',
+  notes: 'Vermont has NO toll roads. If you have a toll-related registration hold, it originated from a neighboring state (usually NH via I-89/I-93 or NY via I-87). Contact the originating state\'s toll authority to resolve. Once cleared, VT DMV automatically lifts the hold at next registration cycle. Call VT DMV at 802-828-2000 to confirm. For NH tolls: ezpassnh.com or 603-485-3878. For NY tolls: e-zpassny.com or 800-333-8655.',
 };

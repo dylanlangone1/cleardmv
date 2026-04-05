@@ -1,5 +1,5 @@
 import type { StateData } from '@/types/state';
-import { ExternalLink, Phone, Calendar, FileText, DollarSign } from 'lucide-react';
+import { ExternalLink, Phone, Calendar, FileText, DollarSign, Shield } from 'lucide-react';
 
 interface Props {
   stateData: StateData;
@@ -70,6 +70,30 @@ export function StateSidebar({ stateData: s }: Props) {
           </div>
         </div>
       )}
+
+      {/* TollFighter + DMV Appointment */}
+      <div className="bg-white border border-gray-200 rounded-2xl p-4 shadow-sm space-y-2">
+        <a
+          href="https://tollfighter.com/assess"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-2 text-xs text-orange-600 hover:text-orange-800 font-semibold transition-colors"
+        >
+          <Shield className="w-3.5 h-3.5" />
+          Fight your toll violations
+        </a>
+        {s.urls.appointmentBooking && (
+          <a
+            href={s.urls.appointmentBooking}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-xl px-3 py-2 transition-colors"
+          >
+            <Calendar className="w-3.5 h-3.5" />
+            Book DMV Appointment
+          </a>
+        )}
+      </div>
 
       <p className="text-xs text-gray-400 px-1">
         Fees and rules subject to change — always verify at the official DMV site.

@@ -25,6 +25,11 @@ export const RI_STATE_DATA: StateData = {
       label: 'Vehicle Registration Application',
       url: 'https://dmv.ri.gov/forms',
     },
+    titleTransfer: {
+      name: 'BAR-MVR-5',
+      label: 'Application for Certificate of Title',
+      url: 'https://dmv.ri.gov/forms',
+    },
   },
   tollAuthorities: ['RI Turnpike and Bridge Authority (RITBA)', 'E-ZPass RI'],
   tollHoldProcess: {

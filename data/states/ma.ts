@@ -47,5 +47,5 @@ export const MA_STATE_DATA: StateData = {
     duplicateTitle: '$25',
     licenseReinstatement: '$100 reinstatement fee for most suspensions',
   },
-  notes: 'Massachusetts calls its agency the "RMV" (Registry of Motor Vehicles), not the DMV. Appointments are strongly recommended for in-person visits as walk-ins have long wait times.',
+  notes: 'Massachusetts calls its agency the "RMV" (Registry of Motor Vehicles), not the DMV. Appointments are strongly recommended for in-person visits as walk-ins have long wait times. IMPORTANT: Under the Road to Opportunity Act (2024), Massachusetts CANNOT suspend your driver\'s license solely for unpaid toll violations. Toll-related registration holds may still apply, but your license is protected. The MassDOT Toll Violations Clear line (857-368-3615) handles hardship payment plans and fee waivers under this law.',
 };

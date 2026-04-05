@@ -41,16 +41,24 @@ export async function POST(req: NextRequest) {
       return new Response(JSON.stringify({ error: `Unknown state: ${stateCode}` }), { status: 400 });
     }
 
-    if (!messages || messages.length === 0) {
+    if (!Array.isArray(messages) || messages.length === 0) {
       return new Response(JSON.stringify({ error: 'messages is required' }), { status: 400 });
+    }
+
+    // Security: Cap message count and content length to prevent token abuse
+    const MAX_MESSAGES = 20;
+    const MAX_CONTENT_LENGTH = 2000;
+
+    if (messages.length > MAX_MESSAGES) {
+      return new Response(JSON.stringify({ error: 'Too many messages. Please start a new chat.' }), { status: 400 });
     }
 
     const systemPrompt = buildSystemPrompt(stateData, issue, handoffContext);
 
-    // Build Anthropic message array from our Message[]
+    // Build Anthropic message array — enforce role whitelist + length cap
     const anthropicMessages: Anthropic.MessageParam[] = messages.map((m) => ({
-      role: m.role as 'user' | 'assistant',
-      content: m.content,
+      role: m.role === 'assistant' ? 'assistant' as const : 'user' as const,
+      content: String(m.content).slice(0, MAX_CONTENT_LENGTH),
     }));
 
     // Stream response
@@ -94,7 +102,7 @@ export async function POST(req: NextRequest) {
   } catch (err) {
     console.error('[chat/route] error:', err);
     return new Response(
-      JSON.stringify({ error: err instanceof Error ? err.message : 'Internal server error' }),
+      JSON.stringify({ error: 'Something went wrong. Please try again.' }),
       { status: 500 },
     );
   }

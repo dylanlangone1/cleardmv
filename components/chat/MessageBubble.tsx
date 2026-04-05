@@ -32,8 +32,17 @@ function renderContent(text: string) {
   });
 }
 
+function escapeHtml(s: string) {
+  return s
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
 function boldify(text: string) {
-  return text
+  const safe = escapeHtml(text);
+  return safe
     .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
     .replace(/`(.+?)`/g, '<code class="bg-gray-100 px-1 rounded text-xs font-mono text-gray-800">$1</code>');
 }

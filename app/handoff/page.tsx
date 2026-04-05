@@ -16,12 +16,16 @@ function HandoffRedirect() {
   const searchParams = useSearchParams();
 
   useEffect(() => {
-    const state         = searchParams.get('state')?.toLowerCase() ?? 'nh';
-    const issue         = (searchParams.get('issue') ?? 'toll_hold') as IssueType;
+    const VALID_STATES = ['nh', 'ny', 'ma', 'me', 'ri', 'ct', 'vt'];
+    const VALID_ISSUES: IssueType[] = ['toll_hold', 'registration', 'license', 'title', 'appointment', 'general'];
+    const rawState      = searchParams.get('state')?.toLowerCase() ?? 'nh';
+    const state         = VALID_STATES.includes(rawState) ? rawState : 'nh';
+    const rawIssue      = searchParams.get('issue') ?? 'toll_hold';
+    const issue         = VALID_ISSUES.includes(rawIssue as IssueType) ? rawIssue as IssueType : 'toll_hold' as IssueType;
     const tollAuthority = searchParams.get('toll_authority') ?? undefined;
     const violations    = searchParams.get('violations') ? Number(searchParams.get('violations')) : undefined;
     const owed          = searchParams.get('owed') ? Number(searchParams.get('owed')) : undefined;
-    const plate         = searchParams.get('plate') ?? undefined;
+    const plate         = searchParams.get('plate')?.slice(0, 10).replace(/[^A-Z0-9]/gi, '') ?? undefined;
     const hold          = searchParams.get('hold') === 'true';
 
     const ctx: HandoffContext = {

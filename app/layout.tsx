@@ -16,14 +16,14 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL("https://cleardmv.com"),
   title: {
-    default:  "ClearDMV — Free DMV Registration & License Check",
+    default:  "ClearDMV | Fix Your Registration Issues Instantly",
     template: "%s | ClearDMV",
   },
-  description: "Check your vehicle registration status, find DMV holds, toll violations, and license issues in seconds — free. AI-powered step-by-step guidance for NH, NY, MA, ME, RI, CT, and VT.",
-  keywords: ["DMV registration check", "vehicle registration status", "registration hold", "toll violation", "license suspended", "DMV help", "check license plate"],
+  description: "AI-powered DMV assistant for New England. Scan your plate, find holds, and get step-by-step guidance to reinstate your registration.",
+  keywords: ["DMV registration check", "vehicle registration status", "registration hold", "toll violation", "license suspended", "DMV help", "check license plate", "reinstate registration", "DMV assistant"],
   openGraph: {
-    title:       "ClearDMV — Free DMV Registration & License Check",
-    description: "Find DMV holds, toll violations, and license issues in seconds. Free AI-powered guidance.",
+    title:       "ClearDMV | Fix Your Registration Issues Instantly",
+    description: "AI-powered DMV assistant for New England. Scan your plate, find holds, and get step-by-step guidance to reinstate your registration.",
     siteName:    "ClearDMV",
     url:         "https://cleardmv.com",
     type:        "website",
@@ -31,8 +31,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card:        "summary_large_image",
-    title:       "ClearDMV — Free DMV Registration & License Check",
-    description: "Find DMV holds and registration issues instantly. Free AI-powered guidance.",
+    title:       "ClearDMV | Fix Your Registration Issues Instantly",
+    description: "AI-powered DMV assistant for New England. Scan your plate, find holds, and get step-by-step guidance to reinstate your registration.",
     site:        "@cleardmv",
   },
   alternates: {
